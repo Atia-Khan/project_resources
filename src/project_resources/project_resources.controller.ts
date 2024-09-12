@@ -8,12 +8,12 @@ import { ProjectResource } from '../project_resources/entities/project_resource.
 export class ProjectResourcesController {
   constructor(private readonly projectResourcesService: ProjectResourcesService) {}
 
-  @Post('/add')
+  @Post()
   async create(@Body() ProjectResource: Partial<ProjectResource>): Promise<ProjectResource> {
     return this.projectResourcesService.create(ProjectResource);
   }
 
-  @Get('/get')
+  @Get()
   async findAll(): Promise<ProjectResource[]> {
     return this.projectResourcesService.findAll();
   }
