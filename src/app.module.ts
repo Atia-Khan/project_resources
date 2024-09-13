@@ -8,7 +8,7 @@ import { ProjectResourcesModule } from './project_resources/project_resources.mo
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), 
-    MongooseModule.forRoot(process.env.PROJECT_RESOURCES_DATABASE_URL),
+    MongooseModule.forRoot(process.env.DATABASE_URL),
     ProjectResourcesModule],
   controllers: [AppController],
   providers: [AppService],
