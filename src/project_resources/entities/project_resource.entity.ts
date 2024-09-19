@@ -8,8 +8,7 @@ export type ProjectResourcesDocument = ProjectResource & Document;
 @Schema({timestamps: true, collection: 'tl_project_resources'})
 export class ProjectResource {
 
-//   @Prop({ type: String, auto: true })
-//   _id: string
+
 
 @Prop({required: true})
 project_id : string;
