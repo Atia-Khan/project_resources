@@ -36,11 +36,7 @@ export class ProjectResourcesController {
   @Get('count/:projectId')
   async countResources(@Param('projectId') projectId: string): Promise<{ resourceCount: number }> {
     const resourceCount = await this.projectResourcesService.countResourcesByProjectId(projectId);
-    
-    if (resourceCount === 0) {
-      throw new NotFoundException(`No resources found for project with ID ${projectId}`);
-    }
-    
+
     return { resourceCount };
   }
 
