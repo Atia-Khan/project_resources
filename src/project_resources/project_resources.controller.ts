@@ -33,6 +33,18 @@ export class ProjectResourcesController {
     return this.projectResourcesService.delete(id);
   }
 
+  @Get('count/:projectId')
+  async countResources(@Param('projectId') projectId: string): Promise<{ count: number }> {
+    const count = await this.projectResourcesService.countResourcesByProjectId(projectId);
+    
+    if (count === 0) {
+      throw new NotFoundException(`No resources found for project with ID ${projectId}`);
+    }
+    
+    return { count };
+  }
+
+
   @Get()
   async findAll(@Query('projectId') projectId?: string): Promise<ProjectResource[]> {
     let projectResources: ProjectResource[];
@@ -51,4 +63,8 @@ export class ProjectResourcesController {
 
     return projectResources;
   }
+
+
+  
+
 }

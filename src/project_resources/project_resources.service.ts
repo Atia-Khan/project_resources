@@ -34,6 +34,9 @@ export class ProjectResourcesService {
     return this.projectResourceModel.find({ project_id: projectId }).exec();
   }
 
+  async countResourcesByProjectId(projectId: string): Promise<number> {
+    return this.projectResourceModel.countDocuments({ project_id: projectId }).exec();
+  }
  
   async update(id: string, updateProjectResourceDto: Partial<ProjectResource>): Promise<ProjectResource> {
     const updatedResource = await this.projectResourceModel.findByIdAndUpdate(id, updateProjectResourceDto, { new: true }).exec();
