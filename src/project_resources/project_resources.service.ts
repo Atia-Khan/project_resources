@@ -30,7 +30,9 @@ export class ProjectResourcesService {
     return projectResource;
   }
 
-
+  async findByProjectId(projectId: string): Promise<ProjectResource[]> {
+    return this.projectResourceModel.find({ project_id: projectId }).exec();
+  }
 
  
   async update(id: string, updateProjectResourceDto: Partial<ProjectResource>): Promise<ProjectResource> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Query, Get, Post, Body, Param, Put, Delete, NotFoundException } from '@nestjs/common';
 import { ProjectResourcesService } from './project_resources.service';
 import { ProjectResource } from '../project_resources/entities/project_resource.entity';
 
@@ -13,10 +13,10 @@ export class ProjectResourcesController {
     return this.projectResourcesService.create(ProjectResource);
   }
 
-  @Get()
-  async findAll(): Promise<ProjectResource[]> {
-    return this.projectResourcesService.findAll();
-  }
+  // @Get()
+  // async findAll(): Promise<ProjectResource[]> {
+  //   return this.projectResourcesService.findAll();
+  // }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ProjectResource> {
@@ -31,5 +31,24 @@ export class ProjectResourcesController {
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.projectResourcesService.delete(id);
+  }
+
+  @Get()
+  async findAll(@Query('projectId') projectId?: string): Promise<ProjectResource[]> {
+    let projectResources: ProjectResource[];
+
+    if (projectId) {
+      
+      projectResources = await this.projectResourcesService.findByProjectId(projectId);
+    } else {
+      
+      projectResources = await this.projectResourcesService.findAll();
+    }
+
+    if (!projectResources || projectResources.length === 0) {
+      throw new NotFoundException('No project resources found');
+    }
+
+    return projectResources;
   }
 }
