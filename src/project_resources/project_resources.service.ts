@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { HttpService } from '@nestjs/axios'; 
+import { Model , Types} from 'mongoose';
 import { ProjectResource, ProjectResourcesDocument } from '../project_resources/entities/project_resource.entity';
-import { UpdateProjectResourceDto } from './dto/update-project_resource.dto';
+// import { UpdateProjectResourceDto } from './dto/update-project_resource.dto';
+import { lastValueFrom } from 'rxjs'; 
 
 @Injectable()
 export class ProjectResourcesService {
   constructor(
     @InjectModel(ProjectResource.name) private readonly projectResourceModel: Model<ProjectResourcesDocument>,
+    private readonly httpService: HttpService
   ) {}
 
   
@@ -37,7 +40,56 @@ export class ProjectResourcesService {
   async countResourcesByProjectId(projectId: string): Promise<number> {
     return this.projectResourceModel.countDocuments({ project_id: projectId }).exec();
   }
- 
+
+
+  async findResourcesWithUsersDetails(projectId: string): Promise<any[]> {
+    if (!projectId) {
+      throw new BadRequestException('Project ID is required');
+    }
+
+    
+    const projectResources = await this.projectResourceModel.find({ project_id: projectId }).exec();
+
+    if (!projectResources || projectResources.length === 0) {
+      throw new NotFoundException(`No resources found for project with ID ${projectId}`);
+    }
+    const resourcesWithUserDetails = await Promise.all(
+      projectResources.map(async (resource) => {
+        console.log(resource.user_id)
+        console.log(resource.user_name)
+        console.log(resource.toObject)
+
+        
+        const userDetails = await this.getUserDetails(resource.user_id);
+        return {
+          ...resource.toObject(),  
+          userDetails,  
+        };
+      })
+    );
+
+    return resourcesWithUserDetails;
+  }
+
+
+async getUserDetails(userId: string): Promise<any> {
+    const url = `${process.env.AUTH_SERVICE_URL}/users/${userId}`; 
+    console.log(url);
+
+    try {
+      const response = await lastValueFrom(this.httpService.get(url));
+      console.log(response.data)
+      return response.data;  
+      
+      
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    
+}
+
+
+
   async update(id: string, updateProjectResourceDto: Partial<ProjectResource>): Promise<ProjectResource> {
     const updatedResource = await this.projectResourceModel.findByIdAndUpdate(id, updateProjectResourceDto, { new: true }).exec();
   
@@ -54,4 +106,6 @@ export class ProjectResourcesService {
       throw new NotFoundException(`Project Resource with ID ${id} not found`);
     }
   }
+
+
 }

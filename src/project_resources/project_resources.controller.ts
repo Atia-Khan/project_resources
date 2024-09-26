@@ -1,4 +1,4 @@
-import { Controller, Query, Get, Post, Body, Param, Put, Delete, NotFoundException } from '@nestjs/common';
+import { Controller, Query, Get, Post, Body, Param, Put, Delete, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ProjectResourcesService } from './project_resources.service';
 import { ProjectResource } from '../project_resources/entities/project_resource.entity';
 
@@ -61,6 +61,60 @@ export class ProjectResourcesController {
   }
 
 
+  // @Get()
+  // async findAll(@Query('userId') userId?: string): Promise<ProjectResource[]> {
+  //   let projectResources: ProjectResource[];
+
+  //   if (userId) {
+      
+  //     projectResources = await this.projectResourcesService.findResourcesByUserId(userId);
+  //   } else {
+      
+  //     projectResources = await this.projectResourcesService.findAll();
+  //   }
+
+  //   if (!projectResources || projectResources.length === 0) {
+  //     throw new NotFoundException('No project resources found');
+  //   }
+
+  //   return projectResources;
+  // }
+
+
+  @Get('resources-with-user/:projectId')
+  async getResourcesWithUsersDetails(@Param('projectId') projectId: string): Promise<any[]> {
+      return await this.projectResourcesService.findResourcesWithUsersDetails(projectId);
+  }
   
+
+
+
+  @Get('resources-with-user/:projectId')
+  async getResourcesWithUserDetails(@Param('projectId') projectId: string): Promise<any> {
+    
+    if (!projectId) {
+      throw new BadRequestException('Project ID is required');
+    }
+
+   
+    const projectResources = await this.projectResourcesService.getUserDetails(projectId);
+
+    if (!projectResources || projectResources.length === 0) {
+      throw new NotFoundException(`No resources found for project with ID ${projectId}`);
+    }
+
+   
+    const resourcesWithUserDetails = await Promise.all(
+      projectResources.map(async (resource) => {
+        const userDetails = await this.projectResourcesService.getUserDetails(resource.user_id);
+        return {
+          ...resource, 
+          userDetails,            
+        };
+      }),
+    );
+
+    return resourcesWithUserDetails;
+  }
 
 }
