@@ -60,10 +60,10 @@ export class ProjectResourcesService {
         console.log(resource.toObject)
 
         
-        const userDetails = await this.getUserDetails(resource.user_id);
+        const user = await this.getUserDetails(resource.user_id);
         return {
           ...resource.toObject(),  
-          userDetails,  
+          user,  
         };
       })
     );
