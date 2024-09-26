@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { HttpService } from '@nestjs/axios'; 
 import { Model , Types} from 'mongoose';
 import { ProjectResource, ProjectResourcesDocument } from '../project_resources/entities/project_resource.entity';
-// import { UpdateProjectResourceDto } from './dto/update-project_resource.dto';
 import { lastValueFrom } from 'rxjs'; 
 
 @Injectable()
@@ -55,11 +54,6 @@ export class ProjectResourcesService {
     }
     const resourcesWithUserDetails = await Promise.all(
       projectResources.map(async (resource) => {
-        console.log(resource.user_id)
-        console.log(resource.user_name)
-        console.log(resource.toObject)
-
-        
         const user = await this.getUserDetails(resource.user_id);
         return {
           ...resource.toObject(),  
@@ -78,7 +72,7 @@ async getUserDetails(userId: string): Promise<any> {
 
     try {
       const response = await lastValueFrom(this.httpService.get(url));
-      console.log(response.data)
+      // console.log(response.data)
       return response.data;  
       
       
@@ -106,6 +100,28 @@ async getUserDetails(userId: string): Promise<any> {
       throw new NotFoundException(`Project Resource with ID ${id} not found`);
     }
   }
+
+
+
+  async countUniqueUsersForAllProjects(): Promise<{ projectId: string; resourceCount: number }[]> {
+    
+    const results = await this.projectResourceModel.aggregate([
+        {
+            $group: {
+                _id: "$project_id", 
+                resourceCount: { $addToSet: "$user_id" } 
+            }
+        },
+        {
+            $project: {
+                // projectId: "$_id", // Rename _id to projectId
+                resourceCount: { $size: "$resourceCount" } // Count unique user_ids
+            }
+        }
+    ]).exec();
+
+    return results; 
+}
 
 
 }

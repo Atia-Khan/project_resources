@@ -8,15 +8,21 @@ import { ProjectResource } from '../project_resources/entities/project_resource.
 export class ProjectResourcesController {
   constructor(private readonly projectResourcesService: ProjectResourcesService) {}
 
+
+
+  @Get('count')
+  async countUniqueUsersForAllProjects(): Promise<{ projectId: string; resourceCount: number }[]> {
+      console.log('Request received at count endpoint'); // Debug log
+      const resourceCounts = await this.projectResourcesService.countUniqueUsersForAllProjects();
+      return resourceCounts;
+  }
+
   @Post()
   async create(@Body() ProjectResource: Partial<ProjectResource>): Promise<ProjectResource> {
     return this.projectResourcesService.create(ProjectResource);
   }
 
-  // @Get()
-  // async findAll(): Promise<ProjectResource[]> {
-  //   return this.projectResourcesService.findAll();
-  // }
+  
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ProjectResource> {
@@ -61,24 +67,6 @@ export class ProjectResourcesController {
   }
 
 
-  // @Get()
-  // async findAll(@Query('userId') userId?: string): Promise<ProjectResource[]> {
-  //   let projectResources: ProjectResource[];
-
-  //   if (userId) {
-      
-  //     projectResources = await this.projectResourcesService.findResourcesByUserId(userId);
-  //   } else {
-      
-  //     projectResources = await this.projectResourcesService.findAll();
-  //   }
-
-  //   if (!projectResources || projectResources.length === 0) {
-  //     throw new NotFoundException('No project resources found');
-  //   }
-
-  //   return projectResources;
-  // }
 
 
   @Get('resources-with-user/:projectId')
@@ -117,4 +105,6 @@ export class ProjectResourcesController {
     return resourcesWithUserDetails;
   }
 
+
+  
 }
