@@ -13,6 +13,13 @@ export class ProjectResourcesService {
   ) {}
 
   
+  async checkIfResourceAssigned(projectId: string, resourceId: string): Promise<boolean> {
+    const existingResource = await this.projectResourceModel.findOne({ project_id : projectId, user_id : resourceId });
+    return !!existingResource;  
+  }
+
+
+
   async create(ProjectResource: Partial<ProjectResource>): Promise<ProjectResource> {
     const newResource = new this.projectResourceModel(ProjectResource);
     return newResource.save();

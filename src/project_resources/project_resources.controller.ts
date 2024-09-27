@@ -12,13 +12,21 @@ export class ProjectResourcesController {
 
   @Get('count')
   async countUniqueUsersForAllProjects(): Promise<{ projectId: string; resourceCount: number }[]> {
-      console.log('Request received at count endpoint'); // Debug log
+    
       const resourceCounts = await this.projectResourcesService.countUniqueUsersForAllProjects();
       return resourceCounts;
   }
 
   @Post()
   async create(@Body() ProjectResource: Partial<ProjectResource>): Promise<ProjectResource> {
+    const isAlreadyAssigned = await this.projectResourcesService.checkIfResourceAssigned(
+      ProjectResource.project_id,
+      ProjectResource.user_id
+    );
+
+    if(isAlreadyAssigned){
+      throw new BadRequestException('This resource is already assigned to the project.');
+    }
     return this.projectResourcesService.create(ProjectResource);
   }
 
