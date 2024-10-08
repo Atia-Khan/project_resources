@@ -124,8 +124,8 @@ async getUserDetails(userId: string): Promise<any> {
         },
         {
             $project: {
-                // projectId: "$_id", // Rename _id to projectId
-                resourceCount: { $size: "$resourceCount" } // Count unique user_ids
+                
+                resourceCount: { $size: "$resourceCount" } 
             }
         }
     ]).exec();

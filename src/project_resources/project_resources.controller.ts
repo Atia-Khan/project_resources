@@ -74,17 +74,6 @@ export class ProjectResourcesController {
     return projectResources;
   }
 
-
-
-
-  // @Get('resources-with-user/:projectId')
-  // async getResourcesWithUsersDetails(@Param('projectId') projectId: string): Promise<any[]> {
-  //     return await this.projectResourcesService.findResourcesWithUsersDetails(projectId);
-  // }
-  
-
-
-
   @Get('resources-with-user/:projectId')
   async getResourcesWithUserDetails(@Param('projectId') projectId: string): Promise<any[]> {
     
@@ -97,14 +86,7 @@ export class ProjectResourcesController {
   if (!projectResources || projectResources.length === 0) {
     throw new NotFoundException(`No resources found for project with ID ${projectId}`);
   }
-   
-    // const projectResourcesUser = await this.projectResourcesService.getUserDetails(projectId);
-
-    // if (!projectResources || projectResources.length === 0) {
-    //   throw new NotFoundException(`No resources found for project with ID ${projectId}`);
-    // }
-
-   
+  
     const resourcesWithUserDetails = await Promise.all(
       projectResources.map(async (resource) => {
         try{
@@ -115,8 +97,6 @@ export class ProjectResourcesController {
           };
         }catch(error){
           console.error(`Error fetching user details for user ID ${resource.user_id}:`, error.message);
-        
-          // Handle the case where user details are not found
           return {
             ...resource,
             user: null,
@@ -124,27 +104,6 @@ export class ProjectResourcesController {
       }
       }),
     );
-
-
-    // const resourcesWithUserDetails = await Promise.all(
-    //   projectResources.map(async (resource) => {
-    //     try {
-    //       const userDetails = await this.projectResourcesService.getUserDetails(resource.user_id);
-    //       const resourceObj = resource.toObject ? resource.toObject() : resource;
-
-    //       return {
-    //         ...resourceObj,
-    //         userDetails,
-    //       };
-    //     } catch (error) {
-    //       // Handle the case where user details are not found
-    //       return {
-    //         ...resourceObj,
-    //         userDetails: null,
-    //       };
-    //     }
-    //   }),
-    // );
     return resourcesWithUserDetails;
   }
 
