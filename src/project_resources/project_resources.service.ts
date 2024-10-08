@@ -27,7 +27,7 @@ export class ProjectResourcesService {
 
 
   async findAll(): Promise<ProjectResource[]> {
-    return this.projectResourceModel.find().exec();
+    return this.projectResourceModel.find().lean().exec();
   }
 
  
@@ -40,7 +40,7 @@ export class ProjectResourcesService {
   }
 
   async findByProjectId(projectId: string): Promise<ProjectResource[]> {
-    return this.projectResourceModel.find({ project_id: projectId }).exec();
+    return this.projectResourceModel.find({ project_id: projectId }).lean().exec();
   }
 
   async countResourcesByProjectId(projectId: string): Promise<number> {
@@ -48,13 +48,15 @@ export class ProjectResourcesService {
   }
 
 
-  async findResourcesWithUsersDetails(projectId: string): Promise<any[]> {
+  async findResourcesWithUserDetails(projectId: string): Promise<any[]> {
     if (!projectId) {
       throw new BadRequestException('Project ID is required');
     }
 
     
-    const projectResources = await this.projectResourceModel.find({ project_id: projectId }).exec();
+    const projectResources: ProjectResourcesDocument[] = await this.projectResourceModel
+    .find({ project_id: projectId })
+    .exec();
 
     if (!projectResources || projectResources.length === 0) {
       throw new NotFoundException(`No resources found for project with ID ${projectId}`);
@@ -84,7 +86,8 @@ async getUserDetails(userId: string): Promise<any> {
       
       
     } catch (error) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+      console.error(`Error fetching user with ID ${userId}:`, error.response?.data || error.message);
+      return null;
     }
     
 }
